@@ -1,118 +1,295 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
+import Head from 'next/head'
+import styles from '@/styles/Home.module.css'
+import {useEffect, useState } from 'react'
+import LoanPriceChart from "./components/LoanPriceChart"
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+
+  useEffect(()=>{
+    calculateMortgage(null)
+  })
+
+  const calculateMortgage = (event: any) => {
+    if(event) {
+      event.preventDefault();
+    }
+  
+
+    const interest = formData.interest / 100
+    const term = formData.term
+    const totalLoan = formData.price - formData.downpayment
+
+    let payment = monthlyMortgagePayment(interest, totalLoan, term)
+    let totalCost = totalMortgageCost(payment, term)
+    let totalInterest = totalCost - totalLoan
+
+    setMortgage({
+      payment: payment,
+      totalCost: totalCost,
+      totalInterest: totalInterest,
+      totalLoan:totalLoan
+    })
+
+  }
+
+  const monthlyMortgagePayment = (interest: number, loan: number, term: number) => {
+
+    console.log("interest", interest)
+    console.log("loan", loan)
+    console.log("term", term)
+
+    let payment = (loan * (interest / 12)) / (1 - (1 + (interest / 12)) ** (-12 * term))
+
+
+    console.log(payment)
+    payment = Math.round(payment)
+
+    return payment
+
+  }
+
+  const totalMortgageCost = (payment: number, term: number) => {
+    return payment * 12 * term
+  }
+
+  const [formData, setFormData] = useState({
+    price: 100000,
+    downpayment: 15000,
+    downpaymentpercent: 15,
+    interest: 5,
+    term: 30,
+
+  })
+
+  const [mortgage, setMortgage] = useState({
+    payment: 0,
+    totalCost: 0,
+    totalInterest: 0,
+    totalLoan:0
+
+  })
+
+  const handleChange = (event: any) => {
+    const { name, value } = event.target
+    let realValue = value
+
+    if (name === "term" && value > 30) {
+      realValue = 30
+    }
+
+    if (name === "downpaymentpercent") {
+
+      setFormData((prevFormData) => {
+        let downpayment = (realValue / 100) * prevFormData.price
+        let downpaymentModified = Number(downpayment.toFixed(2))
+        return {
+          ...prevFormData,
+          downpayment: downpaymentModified
+
+        }
+      })
+
+    }
+
+    if (name === "price") {
+
+      setFormData((prevFormData) => {
+        let downpayment = (prevFormData.downpaymentpercent / 100) * realValue
+        let downpaymentModified = Number(downpayment.toFixed(2))
+        return {
+          ...prevFormData,
+          downpayment: downpaymentModified
+
+        }
+      })
+
+    }
+
+
+    if (name === "downpayment") {
+
+
+      setFormData((prevFormData) => {
+        let downpaymentpercent = (realValue / prevFormData.price) * 100
+        let downpaymentpercentModified = Number(downpaymentpercent.toFixed(2))
+        return {
+          ...prevFormData,
+          downpaymentpercent: downpaymentpercentModified,
+        }
+      })
+
+
+
+
+    }
+
+
+    setFormData((prevFormData) => {
+      return {
+        ...prevFormData,
+        [name]: realValue
+
+      }
+    })
+
+  
+  }
+
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <>
+      <Head>
+        <title>Mortgage Calculator</title>
+        <meta name="description" content="App that helps you plan you mortgage loan" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+
+      <div className="max-w-screen-xl mx-auto background h-screen p-3">
+
+        <main className='w-full flex flex-col justify-center w-full'>
+
+
+
+          <section className='flex flex-col w-full'>
+
+            <div className='w-full text-3xl'>
+
+              <h1>Būsto paskolos skaičiuoklė</h1>
+
+            </div>
+
+            <div className='flex w-full flex-col justify-around sm:flex-row'>
+
+              <form onSubmit={calculateMortgage} className='flex flex-col w-1/2 gap-y-2'>
+
+                {/* price */}
+
+                <div className='flex flex-col max-w-[15rem]'>
+
+                  <label className='text-lg' htmlFor="price">Būsto kaina</label>
+
+                  <div className='rainbowfocusEur rounded-md  flex bg-white border justify-center  flex-row-reverse ' >
+
+                    <input step="5000" min="0" type="number" name='price' value={formData.price} onChange={handleChange} className=' rainbowfocus1-2 focus:outline-none p-1 pl-3 outline-none  w-full w-11/12' />
+
+                    <label htmlFor="price" className='p-1  mx-1 text-start  h-full w-1/12'>€</label>
+
+                  </div>
+
+                </div>
+                {/* 
+                {"downpayment, downpaymentpercent"} */}
+
+                <div className='flex flex-col max-w-[15rem]'>
+
+                  <label htmlFor="downpayment" className='text-lg'>Pradinis įnašas</label>
+
+                  <div className='rainbowfocusEur rounded-md  flex bg-white border justify-center  flex-row-reverse '>
+
+                    <label htmlFor="downpaymentpercent" className='p-1 text-center mx-1 h-full w-1/12 !text-white'>%</label>
+                    <input step="1" min="0" value={formData.downpaymentpercent} onChange={handleChange} type="number" name='downpaymentpercent' className=' border-l-2 p-1 pl-3  outline-none  w-4/12 rainbowfocus1-2 !text-gray-950' />
+
+
+                    <input step="1000" min="0" value={formData.downpayment} onChange={handleChange} type="number" name='downpayment' className='p-1 pl-3  outline-none  w-6/12 rainbowfocus1-2 !text-gray-950' />
+                    <label htmlFor="downpayment" className='p-1 mx-1  text-start  h-full  w-1/12'>€</label>
+                  </div>
+
+                </div>
+
+                {/* interest */}
+
+                <div className='flex flex-col max-w-[15rem] '>
+
+                  <label htmlFor="interest" className='text-lg'>Palūkanos</label>
+
+                  <div className='rounded-md flex bg-white border justify-center flex-row-reverse rainbowfocus1-1'>
+
+                    <label htmlFor="interest" className='p-1 text-center mx-1 h-full w-1/12'>%</label>
+                    <input step=".1" value={formData.interest} onChange={handleChange} type="number" name='interest' className='rainbowfocus1-2 p-1 pl-3  outline-none  w-full w-11/12' />
+                  </div>
+
+                </div>
+
+                {/* term */}
+
+                <div className='flex flex-col max-w-[15rem]'>
+
+
+                  <label htmlFor="term" className='text-lg'>Laikotarpis</label>
+
+                  <div className='rainbowfocus1-1 rounded-md flex bg-white border justify-center flex-row-reverse '>
+
+                    <label htmlFor="term" className='p-1 text-center mx-1   h-full w-3/12 '>metai</label>
+                    <input min="0" value={formData.term} onChange={handleChange} type="number" name='term' className='rainbowfocus1-2 p-1 pl-3  outline-none  w-full w-9/12' />
+                  </div>
+
+
+                </div>
+
+
+
+                <button type='submit' className=" max-w-xs relative inline-flex items-center justify-center p-4 px-5 py-3 overflow-hidden font-medium text-indigo-600 transition duration-300 ease-out rounded-full shadow-xl group hover:ring-1 hover:ring-purple-500">
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-700"></span>
+                  <span className="absolute bottom-0 right-0 block w-64 h-64 mb-32 mr-4 transition duration-500 origin-bottom-left transform rotate-45 translate-x-24 bg-pink-500 rounded-full opacity-30 group-hover:rotate-90 ease"></span>
+                  <span className="relative text-white">Skaičuoti</span>
+                </button>
+
+              </form>
+
+              <div className='w-1/2 '>
+
+                <div className='flex flex-wrap gap-x-3'>
+
+
+                  <div>
+
+
+                    <h3>Mėnesinė įmoka</h3>
+                    <span>{mortgage.payment.toLocaleString()} €</span>
+
+                  </div>
+
+                  <div>
+
+
+                    <h3>Iš viso palūkanų</h3>
+                    <span>{mortgage.totalInterest.toLocaleString()} €</span>
+
+                  </div>
+
+                  <div>
+
+
+                    <h3>Bendra sumokama suma</h3>
+                    <span>{mortgage.totalCost.toLocaleString()} €</span>
+
+                  </div>
+
+
+                </div>
+
+                <LoanPriceChart interest={mortgage.totalInterest} loan={mortgage.totalLoan} />
+
+                
+
+                
+
+              </div>
+
+            </div>
+
+
+
+          </section>
+
+
+
+        </main>
+
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </>
   )
 }
