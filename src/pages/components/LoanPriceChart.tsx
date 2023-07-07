@@ -1,5 +1,5 @@
 import React from "react";
-import { Chart, ArcElement,Tooltip,Legend } from "chart.js";
+import { Chart, ArcElement,Tooltip,Legend, plugins } from "chart.js";
 import {Doughnut} from "react-chartjs-2"
 import { type } from "os";
 
@@ -15,15 +15,15 @@ type propsType = {
 
 
 export default function LoanPriceChart({interest, loan} : propsType) {
-
+    
   
     const data = {
         labels: ["Viso palūkanų", "Paskola"],
         datasets: [{
             label: " €",
             data: [interest,loan],
-            backgroundColor:["blue","yellow"],
-            borderColor:["blue","yellow"],
+            backgroundColor:["#005BBB","#FFD500"],
+            borderColor:["#005BBB","#FFD500"],
 
         }]
     }
@@ -31,8 +31,10 @@ export default function LoanPriceChart({interest, loan} : propsType) {
     const options = {
         responsive: true,
         animation: {
-            duration: 500
-        }
+            duration: 100
+        },
+        
+
 
     }
 

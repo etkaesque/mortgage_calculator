@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 .background {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5d7;
+}
+
+body {
+  background: url("../../public/nature.jpg");
 }
 
 .rainbowfocus1-1:focus-within{
@@ -22,3 +26,58 @@
 
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.changeSectionBTN {
+  font-size: 1.125rem;
+  transition: border-bottom 400ms;
+  color: #005BBB;
+  border-bottom: solid 2px transparent;
+}
+
+.changeSectionBTN:hover {
+  border-bottom: solid 2px rgb(186, 186, 204);
+}
+
+.changeSectionBTNFocus {
+  font-size: 1.125rem;
+  transition: border-bottom 400ms;
+  color: #005BBB;
+  border-bottom: solid 2px blue;
+
+}
+
+.yearButton {
+  border-bottom: solid 2px rgb(186, 186, 204);
+  letter-spacing: 0.05rem;
+  font-size: 20px;
+}
+
+
+.yearButton:hover {
+
+  color: #005BBB;
+  border-bottom: solid 2px rgb(186, 186, 204);
+
+
+}
+
+.aEuribor {
+  
+  color: #005BBB;
+
+}
+
+.aEuribor:hover {
+
+  opacity: 0.80;
+  
+}
